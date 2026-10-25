@@ -1,8 +1,10 @@
+
 pipeline {
     agent any
 
     environment {
         DOCKER_IMAGE = 'vedant1407/agriassist'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
@@ -35,6 +37,19 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    kubectl --kubeconfig="$KUBECONFIG" \
+                      set image deployment/agriassist \
+                      agriassist=${DOCKER_IMAGE}:${BUILD_NUMBER}
+
+                    kubectl --kubeconfig="$KUBECONFIG" \
+                      rollout status deployment/agriassist --timeout=180s
+                '''
+            }
+        }
     }
 
     post {
@@ -43,3 +58,4 @@ pipeline {
         }
     }
 }
+
