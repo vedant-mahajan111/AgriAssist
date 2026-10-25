@@ -1,0 +1,11 @@
+
+Flask
+flask-cors
+mysql-connector-python
+google-genai
+google-generativeai
+python-dotenv
+requests
+pandas
+numpy
+scikit-learn
