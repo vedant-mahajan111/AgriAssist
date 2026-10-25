@@ -12,7 +12,12 @@ dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
 load_dotenv(dotenv_path=dotenv_path)
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder="templates",
+    static_folder="frontend",
+    static_url_path="/"
+)
 
 CORS(app, resources={
     r"/api/*": {
@@ -32,12 +37,15 @@ gemini_api_key = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=gemini_api_key) if gemini_api_key else None
 
 # Connect to your MySQL Database (Update password if needed)
+
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
+    host=os.getenv("MYSQL_HOST", "localhost"),
+    port=int(os.getenv("MYSQL_PORT", "3306")),
+    user=os.getenv("MYSQL_USER", "root"),
     password=os.getenv("MYSQL_PASSWORD"),
-    database="agriassist_db"
+    database=os.getenv("MYSQL_DATABASE", "agriassist_db")
 )
+
 ml_engine = AgriML(db)
 @app.route('/api/crops', methods=['GET'])
 def get_crops():
@@ -106,4 +114,4 @@ def recommend():
     return jsonify({"recommended_crop": crop})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
